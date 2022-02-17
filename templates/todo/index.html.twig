@@ -3,18 +3,39 @@
 {% block title %}Hello TodoController!{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="container mt-5">
+    <h2>Список дел {{user.email}} </h2> 
+    <div class="row my-5">
+        <div class="col-md-5">
+            <input class="form-control" type="text" placeholder="Введите новую задачу">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary"> Добавить </button>
+        </div> 
+    </div> 
+    
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title job-name">
+            <input class="form-check-input" id="job" type="checkbox">
+            <label class="form-check-label" for="job"> Задача </label>
+         </h5>
+        </div>
+    </div> 
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+</div> 
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/xampp/htdocs/goto/src/Controller/TodoController.php'|file_link(0) }}">src/Controller/TodoController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/xampp/htdocs/goto/templates/todo/index.html.twig'|file_link(0) }}">templates/todo/index.html.twig</a></code></li>
-    </ul>
-</div>
+<script type="text/javascript">
+    $('.job-name>.form-check-input').change(function(){
+        if(!$(this).parent().hasClass('done')){
+            $(this).parent().children('.form-check-label').css({'text-decoration':'line-through', 'color':'red'}); 
+            $(this).parent().addClass('done'); 
+        }else{
+            $(this).parent().children('.form-check-label').css({'text-decoration':'', 'color':''}); 
+            $(this).parent().removeClass('done'); 
+        }
+    });
+</script>
+
+
 {% endblock %}

@@ -38,9 +38,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $password;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\ManyToOne(targetEntity=Job::class, inversedBy="user_id")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $isVerified = false;
+    private $jobs;
+
 
     public function getId(): ?int
     {
@@ -131,15 +133,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function isVerified(): bool
+    public function getJobs(): ?Job
     {
-        return $this->isVerified;
+        return $this->jobs;
     }
 
-    public function setIsVerified(bool $isVerified): self
+    public function setJobs(?Job $jobs): self
     {
-        $this->isVerified = $isVerified;
+        $this->jobs = $jobs;
 
         return $this;
     }
+
 }
