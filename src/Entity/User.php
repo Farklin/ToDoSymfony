@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -42,6 +44,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\JoinColumn(nullable=false)
      */
     private $jobs;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Job::class, mappedBy="user_id")
+     */
+    private $user_id;
+
+    public function __construct()
+    {
+        $this->user_id = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -133,14 +145,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getJobs(): ?Job
+    /**
+     * @return Collection|Job[]
+     */
+    public function getUserId(): Collection
     {
-        return $this->jobs;
+        return $this->user_id;
     }
 
-    public function setJobs(?Job $jobs): self
+    public function addUserId(Job $userId): self
     {
-        $this->jobs = $jobs;
+        if (!$this->user_id->contains($userId)) {
+            $this->user_id[] = $userId;
+            $userId->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserId(Job $userId): self
+    {
+        if ($this->user_id->removeElement($userId)) {
+            // set the owning side to null (unless already changed)
+            if ($userId->getUserId() === $this) {
+                $userId->setUserId(null);
+            }
+        }
 
         return $this;
     }

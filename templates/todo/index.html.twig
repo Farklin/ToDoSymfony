@@ -7,34 +7,111 @@
     <h2>Список дел {{user.email}} </h2> 
     <div class="row my-5">
         <div class="col-md-5">
-            <input class="form-control" type="text" placeholder="Введите новую задачу">
+            <input class="form-control" id="planeJobName" name="name" type="text" placeholder="Введите новую задачу">
         </div>
         <div class="col-md-2">
-            <button class="btn btn-primary"> Добавить </button>
+            <button class="btn btn-primary" id="btn-create-job" > Добавить </button>
         </div> 
     </div> 
-    
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title job-name">
-            <input class="form-check-input" id="job" type="checkbox">
-            <label class="form-check-label" for="job"> Задача </label>
-         </h5>
-        </div>
+    <div class="job-container"> 
+        {% for job in jobs %}
+            {% include 'todo/job.html.twig' %} 
+        {% endfor %}
     </div> 
 
 </div> 
 
+<style>
+.done .form-check-label{
+    text-decoration: line-through; 
+    color: red; 
+}
+.form-check-label
+{
+    cursor:pointer; 
+}
+</style>
 <script type="text/javascript">
+    // ajax добавление задачи
+    function addJob()
+    {   
+        var form = new FormData();
+        form.append("name", $('#planeJobName').val());
+
+        var settings = {
+            "url": "/todo/api/create-job",
+            "method": "POST",
+            "timeout": 0,
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": form
+        };
+
+        $.ajax(settings).done(function (response) {
+    
+            $('.job-container').append($.parseJSON(response).html); 
+        
+        });
+    }
+
+    // ajax выполнение задачи
+    function endJob(element)
+    {
+        var settings = {
+            "url": "/todo/api/end-job/" + element.data('id'),
+            "method": "PATCH",
+            "timeout": 0,
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+        };
+
+        $.ajax(settings).done(function (response) {
+            // Выставление даты в карточку задачи
+            if($.parseJSON(response).datetime != null)
+            {
+                element.closest('.card-body.job').find('.date-finish').html($.parseJSON(response).datetime.date); 
+            }else{
+                element.closest('.card-body.job').find('.date-finish').html(''); 
+            }
+           
+        });
+    }
+
+    function deleteJob(id){
+        $('#container-job-' + id).remove();
+        var settings = {
+            "url": "/todo/api/delete-job/" + id,
+            "method": "DELETE",
+            "timeout": 0,
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+        };
+
+        $.ajax(settings).done(function (response) {
+           alert(response);            
+        });
+    }
+
+    // выволнение задачи событие
     $('.job-name>.form-check-input').change(function(){
         if(!$(this).parent().hasClass('done')){
-            $(this).parent().children('.form-check-label').css({'text-decoration':'line-through', 'color':'red'}); 
             $(this).parent().addClass('done'); 
+            endJob($(this));
         }else{
-            $(this).parent().children('.form-check-label').css({'text-decoration':'', 'color':''}); 
             $(this).parent().removeClass('done'); 
+            endJob($(this));
         }
     });
+    
+    //  создание задачи событие
+    $('#btn-create-job').click(function(){
+        addJob();
+    }); 
+    
+   
 </script>
 
 

@@ -1,0 +1,14 @@
+<div class="card mt-1" id="container-job-{{ job.id }}">
+    <div class="card-body job">
+        <div> 
+            <h5 class="card-title job-name {% if job.status == 0 %} done {% endif %}"> 
+                <input class="form-check-input" {% if job.status == 0 %} checked {% endif %} id="job{{ job.id }}" data-id="{{ job.id }}" type="checkbox">
+                <label class="form-check-label" for="job{{ job.id }}"> {{ job.name}} </label>
+                <button onclick="deleteJob({{ job.id }})" >x</button>
+            </h5>
+        </div> 
+        <div>
+            <span class="date-finish"> {% if job.DataFinish %}{{ job.DataFinish|date('Y-m-d H:i:s') }} {% endif %}</span> 
+        </div> 
+    </div>
+</div> 

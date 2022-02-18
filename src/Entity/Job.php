@@ -36,10 +36,11 @@ class Job
     private $status;
 
     /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="jobs")
-     * @Assert\NotNull
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="user_id")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $user_id;
+
 
     public function __construct()
     {
@@ -87,32 +88,14 @@ class Job
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
-    public function getUserId(): Collection
+    public function getUserId(): ?User
     {
         return $this->user_id;
     }
 
-    public function addUserId(User $userId): self
+    public function setUserId(?User $user_id): self
     {
-        if (!$this->user_id->contains($userId)) {
-            $this->user_id[] = $userId;
-            $userId->setJobs($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserId(User $userId): self
-    {
-        if ($this->user_id->removeElement($userId)) {
-            // set the owning side to null (unless already changed)
-            if ($userId->getJobs() === $this) {
-                $userId->setJobs(null);
-            }
-        }
+        $this->user_id = $user_id;
 
         return $this;
     }
