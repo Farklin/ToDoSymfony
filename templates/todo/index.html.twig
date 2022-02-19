@@ -3,8 +3,14 @@
 {% block title %}Hello TodoController!{% endblock %}
 
 {% block body %}
+<div class="text-end p-2">
+    <span> {{ app.user.email }} </span>
+    <a class="text-danger" href="{{ path('app_logout')}}"><i class="fa fa-sign-out" aria-hidden="true"></i> Выйти </a> 
+</div> 
+{# 
+
 <div class="container mt-5">
-    <h2>Список дел {{user.email}} </h2> 
+    <h2>Список дел</h2> 
     <div class="row my-5">
         <div class="col-md-5">
             <input class="form-control" id="planeJobName" name="name" type="text" placeholder="Введите новую задачу">
@@ -13,13 +19,70 @@
             <button class="btn btn-primary" id="btn-create-job" > Добавить </button>
         </div> 
     </div> 
-    <div class="job-container"> 
-        {% for job in jobs %}
-            {% include 'todo/job.html.twig' %} 
-        {% endfor %}
-    </div> 
+    <div class="row"> 
+        <div class="col-md-8">
+            <div class="job-container"> 
+                 {% for job in jobs %}
+                    {% include 'todo/job.html.twig' %} 
+                {% endfor %} 
+            </div> 
+        </div> 
+    </div>  #}
 
 </div> 
+<section class="vh-100 gradient-custom">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+
+        <div class="card">
+          <div class="card-body p-5">
+
+            <div class="d-flex justify-content-center align-items-center mb-4">
+              <div class="form-outline flex-fill">
+                <input type="text" class="form-control" id="planeJobName" placeholder="Новая задача"/>
+                
+              </div>
+              <button id="btn-create-job" class="btn btn-info ms-2 text-white">Добавить</button>
+            </div>
+                <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Все</button>
+                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Активные</button>
+                    <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Завершеные</button>
+                </div>
+                </nav>
+                <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                    <ul class="list-group mb-0 job-container">
+                        {% for job in jobs %}
+                            {% include 'todo/job.html.twig' %} 
+                        {% endfor %} 
+                    </ul>
+                </div>
+                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                </div>
+                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                     {% for job in jobs %}
+                            {% include 'todo/job.html.twig' %} 
+                        {% endfor %} 
+                </div>
+                </div>
+                </nav> 
+
+    
+            </div>
+            <!-- Tabs content -->
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
 
 <style>
 .done .form-check-label{
@@ -30,6 +93,42 @@
 {
     cursor:pointer; 
 }
+.delete-job
+{
+    color: red; 
+    font-size: 15px; 
+    cursor:pointer; 
+    margin-left: 10px; 
+    padding: 5px; 
+    transition: 1s; 
+}
+.delete-job:hover
+{
+    padding: 5px;
+    background: #e5e5e5;
+    border-radius: 10px;
+}
+
+.gradient-custom {
+  background: radial-gradient(50% 123.47% at 50% 50%, #00ff94 0%, #720059 100%),
+    linear-gradient(121.28deg, #669600 0%, #ff0000 100%),
+    linear-gradient(360deg, #0029ff 0%, #8fff00 100%),
+    radial-gradient(100% 164.72% at 100% 100%, #6100ff 0%, #00ff57 100%),
+    radial-gradient(100% 148.07% at 0% 0%, #fff500 0%, #51d500 100%);
+  background-blend-mode: screen, color-dodge, overlay, difference, normal;
+}
+.job-right-content
+{
+    position: absolute;
+    right: 0;
+    padding: 10px;
+   
+}
+.date-finish{
+    color: #a1a1a1;
+    font-size: 12px;
+}
+
 </style>
 <script type="text/javascript">
     // ajax добавление задачи
@@ -57,30 +156,39 @@
 
     // ajax выполнение задачи
     function endJob(element)
-    {
+    {   
+        date = new Date()
+        var form = new FormData();
+        form.append("date_finish", date.toLocaleDateString() + ' ' + date.toLocaleTimeString());
+    
         var settings = {
             "url": "/todo/api/end-job/" + element.data('id'),
-            "method": "PATCH",
+            "method": "POST",
             "timeout": 0,
             "processData": false,
             "mimeType": "multipart/form-data",
             "contentType": false,
+            "data": form, 
         };
 
         $.ajax(settings).done(function (response) {
             // Выставление даты в карточку задачи
             if($.parseJSON(response).datetime != null)
             {
-                element.closest('.card-body.job').find('.date-finish').html($.parseJSON(response).datetime.date); 
+                console.log($.parseJSON(response).datetime); 
+                element.closest('.job').find('.date-finish').html($.parseJSON(response).datetime); 
             }else{
-                element.closest('.card-body.job').find('.date-finish').html(''); 
+                element.closest('.job').find('.date-finish').html(''); 
             }
            
         });
     }
 
     function deleteJob(id){
-        $('#container-job-' + id).remove();
+        $('#container-job-' + id).slideUp('slow', function(){
+            $(this).remove();
+        });
+
         var settings = {
             "url": "/todo/api/delete-job/" + id,
             "method": "DELETE",
@@ -90,27 +198,31 @@
             "contentType": false,
         };
 
-        $.ajax(settings).done(function (response) {
-           alert(response);            
-        });
+        $.ajax(settings); 
     }
 
-    // выволнение задачи событие
-    $('.job-name>.form-check-input').change(function(){
-        if(!$(this).parent().hasClass('done')){
-            $(this).parent().addClass('done'); 
-            endJob($(this));
+    //Выполнение развыполнение задачи 
+    function changeJob(id){
+        var checkbox = $("#job" + id ); 
+         if(!checkbox.parent().hasClass('done')){
+            checkbox.parent().addClass('done'); 
+            endJob(checkbox);
         }else{
-            $(this).parent().removeClass('done'); 
-            endJob($(this));
+            checkbox.parent().removeClass('done'); 
+            endJob(checkbox);
         }
-    });
+    }
     
     //  создание задачи событие
     $('#btn-create-job').click(function(){
         addJob();
+        $('#planeJobName').val(''); 
     }); 
     
+
+
+
+
    
 </script>
 

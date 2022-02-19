@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Job;
+use App\Helper\Helper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,13 +18,13 @@ class TodoController extends AbstractController
      */
     public function index(EntityManagerInterface $entityManager): Response
     {
-        $user = $this->getUser(); 
-        $jobs = $entityManager->getRepository(Job::class)
-            ->findBy(['user_id' => $user->getId()]);
+        $user = $this->getUser();
+        $jobs = $entityManager->getRepository(Job::class)->findBy(['user' => $user->getId()]);
+
         return $this->render('todo/index.html.twig', [
             'controller_name' => 'TodoController',
-            'user' => $user, 
-            'jobs' => $jobs, 
+            'user' => $user,
+            'jobs' => $jobs,
         ]);
     }
 
@@ -32,74 +33,66 @@ class TodoController extends AbstractController
      * Создание новой задачи
      */
     public function createJob(Request $request, ValidatorInterface $validator, EntityManagerInterface $entityManager): Response
-    {   
+    {
+        //создание объекта
         $job = new Job();
         $job->setName($request->get('name'));
         $job->setStatus(true);
-        $job->setUserId($this->getUser());
-    
-        // ... do something to the $author object
-    
-        $errors = $validator->validate($job);
-    
-        if (count($errors) > 0) {
-            /*
-             * Uses a __toString method on the $errors variable which is a
-             * ConstraintViolationList object. This gives us a nice string
-             * for debugging.
-             */
-            $errorsString = (string) $errors;
-    
-            return new Response($errorsString);
-        }
+        $job->setUser($this->getUser());
 
+        //Валидация
+        $errorsString = Helper::validate($job, $validator);
+
+        //добавление в базу
         $entityManager->persist($job);
         $entityManager->flush();
-        
-        $element = $this->renderView('todo/job.html.twig', [ 'job' => $job ]); 
 
-        $response = new Response();
-        $response->setContent(json_encode([
+        //Вывод шаблона
+        $element = $this->renderView('todo/job.html.twig', ['job' => $job]);
+
+        return Helper::responseJson([
             'html' => $element,
-        ]));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
-    }   
+            'errors' => $errorsString,
+        ]);
+    }
 
-       /**
+    /**
      * @Route("/todo/api/delete-job/{id}", methods={"DELETE"})
      * удаление задачи задачи
      */
     public function deleteJob(Request $request, $id, EntityManagerInterface $entityManager)
-    {   
-        
-        $job = $entityManager->getRepository(Job::class)->findOneBy(['id'=>$id]);
-        $entityManager->remove($job);
-        $entityManager->flush();
-    }   
+    {
+        try {
+            $job = $entityManager->getRepository(Job::class)->findOneBy(['id' => $id, 'user' => $this->getUser()]);
+            $entityManager->remove($job);
+            $entityManager->flush();
+            $status = true;
+        } catch (\Exception $e) {
+            $status = false;
+        }
 
-       /**
-     * @Route("/todo/api/end-job/{id}", methods={"PATCH"})
+        return Helper::responseJson([
+            'status' => $status,
+        ]);
+    }
+
+    /**
+     * @Route("/todo/api/end-job/{id}", methods={"POST"})
      * Выполнение / развыполнение задачи
      */
     public function endJob($id, Request $request, EntityManagerInterface $entityManager)
     {
-        $job = $entityManager->getRepository(Job::class)->find($id);
-        $job->setStatus(!$job->getStatus()); 
-        if($job->getStatus()){
-            $job->setDataFinish(NULL); 
-        }else{
-            $job->setDataFinish(new \DateTime()); 
-        }
-        $entityManager->flush(); 
+        $job = $entityManager->getRepository(Job::class)->findOneBy(['id' => $id, 'user' => $this->getUser()]);
 
-        $response = new Response();
-        $response->setContent(json_encode([
+        $job->setStatus(!$job->getStatus());
+        $date = $job->getStatus() ? NULL : new \DateTime($request->request->get('date_finish'));
+        $job->setDateFinish($date);
+
+        $entityManager->flush();
+
+        return Helper::responseJson([
             'status' => $job->getStatus(),
-            'datetime' => $job->getDataFinish(),
-        ]));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
-    }   
-
+            'datetime' => $job->getDateFinish() == null ? NULL : $job->getDateFinish()->format('Y-m-d\ H:i'),
+        ]);
+    }
 }

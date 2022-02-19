@@ -3,10 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\JobRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * @ORM\Entity(repositoryClass=JobRepository::class)
  */
@@ -26,26 +25,25 @@ class Job
     private $name;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $data_finish;
-
-    /**
      * @ORM\Column(type="boolean")
      */
     private $status;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="user_id")
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $date_finish;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $sorting;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="jobs")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $user_id;
-
-
-    public function __construct()
-    {
-        $this->user_id = new ArrayCollection();
-    }
+    private $user;
 
     public function getId(): ?int
     {
@@ -64,18 +62,6 @@ class Job
         return $this;
     }
 
-    public function getDataFinish(): ?\DateTimeInterface
-    {
-        return $this->data_finish;
-    }
-
-    public function setDataFinish(?\DateTimeInterface $data_finish): self
-    {
-        $this->data_finish = $data_finish;
-
-        return $this;
-    }
-
     public function getStatus(): ?bool
     {
         return $this->status;
@@ -88,14 +74,38 @@ class Job
         return $this;
     }
 
-    public function getUserId(): ?User
+    public function getDateFinish(): ?\DateTimeInterface
     {
-        return $this->user_id;
+        return $this->date_finish;
     }
 
-    public function setUserId(?User $user_id): self
+    public function setDateFinish(?\DateTimeInterface $date_finish): self
     {
-        $this->user_id = $user_id;
+        $this->date_finish = $date_finish;
+
+        return $this;
+    }
+
+    public function getSorting(): ?int
+    {
+        return $this->sorting;
+    }
+
+    public function setSorting(?int $sorting): self
+    {
+        $this->sorting = $sorting;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

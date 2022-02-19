@@ -6,13 +6,11 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -40,21 +38,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $password;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Job::class, inversedBy="user_id")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\OneToMany(targetEntity=Job::class, mappedBy="user")
      */
     private $jobs;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Job::class, mappedBy="user_id")
-     */
-    private $user_id;
-
     public function __construct()
     {
-        $this->user_id = new ArrayCollection();
+        $this->jobs = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -146,33 +137,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection|Job[]
+     * @return Collection<int, Job>
      */
-    public function getUserId(): Collection
+    public function getJobs(): Collection
     {
-        return $this->user_id;
+        return $this->jobs;
     }
 
-    public function addUserId(Job $userId): self
+    public function addJob(Job $job): self
     {
-        if (!$this->user_id->contains($userId)) {
-            $this->user_id[] = $userId;
-            $userId->setUserId($this);
+        if (!$this->jobs->contains($job)) {
+            $this->jobs[] = $job;
+            $job->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeUserId(Job $userId): self
+    public function removeJob(Job $job): self
     {
-        if ($this->user_id->removeElement($userId)) {
+        if ($this->jobs->removeElement($job)) {
             // set the owning side to null (unless already changed)
-            if ($userId->getUserId() === $this) {
-                $userId->setUserId(null);
+            if ($job->getUser() === $this) {
+                $job->setUser(null);
             }
         }
 
         return $this;
     }
-
 }

@@ -1,14 +1,26 @@
-<div class="card mt-1" id="container-job-{{ job.id }}">
+{# <div class="card mt-1" id="container-job-{{ job.id }}">
     <div class="card-body job">
-        <div> 
-            <h5 class="card-title job-name {% if job.status == 0 %} done {% endif %}"> 
-                <input class="form-check-input" {% if job.status == 0 %} checked {% endif %} id="job{{ job.id }}" data-id="{{ job.id }}" type="checkbox">
-                <label class="form-check-label" for="job{{ job.id }}"> {{ job.name}} </label>
-                <button onclick="deleteJob({{ job.id }})" >x</button>
-            </h5>
+        <div class="row"> 
+            <div class="col-md-11"> 
+                <h5 class="card-title job-name {% if job.status == 0 %} done {% endif %}"> 
+                    <input  onchange="changeJob({{ job.id }})" class="form-check-input" {% if job.status == 0 %} checked {% endif %} id="job{{ job.id }}" data-id="{{ job.id }}" type="checkbox">
+                    <label class="form-check-label" for="job{{ job.id }}"> {{ job.name}} </label>
+                </h5>
+            </div>
+            <div class="col-md-1 text-center">
+                <i title='Удалить' class="fa fa-times mt-1" onclick="deleteJob({{ job.id }})"></i>
+            </div>
         </div> 
         <div>
-            <span class="date-finish"> {% if job.DataFinish %}{{ job.DataFinish|date('Y-m-d H:i:s') }} {% endif %}</span> 
+            <span class="date-finish"> {% if job.DateFinish %}{{ job.DateFinish|date('Y-m-d H:i:s') }} {% endif %}</span> 
         </div> 
     </div>
-</div> 
+</div>  #}
+ <li class="job list-group-item d-flex align-items-center border-0 mb-2 rounded {% if job.status == 0 %} done {% endif %}" id="container-job-{{ job.id }}" style="background-color: #f4f6f7;">
+    <input class="form-check-input me-2 job{{ job.id }}" onchange="changeJob({{ job.id }})" id="job{{ job.id }}" data-id="{{ job.id }}" type="checkbox" aria-label="..." {% if job.status == 0 %} checked {% endif %} />
+    <label class="form-check-label" for="job{{ job.id }}"> {{ job.name}} </label>
+    <div class="job-right-content">
+        <span class="date-finish"> {% if job.DateFinish %}{{ job.DateFinish|date('Y-m-d H:i') }} {% endif %}</span> 
+        <i title='Удалить' class="fa fa-times mt-1 delete-job" onclick="deleteJob({{ job.id }})"></i>
+    </div>
+</li>
