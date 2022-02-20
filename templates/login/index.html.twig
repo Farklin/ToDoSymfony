@@ -4,50 +4,58 @@
 {# ... #}
 
 {% block body %}
-    {% if error %}
-        <div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
-    
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6"> 
-                <div class="bg-light mt-4 p-4">
-                    {% if last_username == '' %}
-                    <h1>Авторизация</h1>
-                     <form action="{{ path('app_login') }}" method="post">
-                       <div class="form-group">
-                            <label for="username">Email:</label>
-                            <input class="form-control" type="email" id="username" name="_username" value="{{ last_username }}"/>
-                        </div> 
+	{% if error %}
+		<div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+	{% endif %}
 
-                        <div class="form-group mt-3"> 
-                            <label for="password">Пароль:</label>
-                            <input class="form-control" type="password" id="password" name="_password"/>
-                        </div> 
-                        <div class="row mt-2">
-                            <div class="col-md-6"><a href="{{ path('app_register')}}">Регистрация</a>  </div>
-                            <div class="col-md-6 text-end"><button class="btn btn-primary mt-3" type="submit">Войти</button> </div>
-                        </div> 
-                    </form>
-                    {% else %}
-                        <h2> Добро пожаловать {{ app.user.email }} </h2> 
-                        <div> 
-                            <a class="btn btn-primary my-5" href="{{ path('todo')}}"><i class="fa fa-arrow-right"></i> Перейти к списку дел </a> 
-                        </div> 
-                        <div> 
-                            <a class="text-danger" href="{{ path('app_logout')}}"><i class="fa fa-arrow-left"></i> Выйти </a> 
-                        </div> 
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="bg-light mt-4 p-4">
+					{% if last_username == '' %}
+						<h1>Авторизация</h1>
+						<form action="{{ path('app_login') }}" method="post">
+							<div class="form-group">
+								<label for="username">Email:</label>
+								<input class="form-control" type="email" id="username" name="_username" value="{{ last_username }}"/>
+							</div>
 
-                    {% endif %}
+							<div class="form-group mt-3">
+								<label for="password">Пароль:</label>
+								<input class="form-control" type="password" id="password" name="_password"/>
+							</div>
+							<div class="row mt-2">
+								<div class="col-md-6">
+									<a href="{{ path('app_register')}}">Регистрация</a>
+								</div>
+								<div class="col-md-6 text-end">
+									<button class="btn btn-primary mt-3" type="submit">Войти</button>
+								</div>
+							</div>
+						</form>
+					{% else %}
+						<h2>
+							Добро пожаловать
+							{{ app.user.email }}
+						</h2>
+						<div>
+							<a class="btn btn-primary my-5" href="{{ path('todo')}}">
+								<i class="fa fa-arrow-right"></i>
+								Перейти к списку дел
+							</a>
+						</div>
+						<div>
+							<a class="text-danger" href="{{ path('app_logout')}}">
+								<i class="fa fa-arrow-left"></i>
+								Выйти
+							</a>
+						</div>
 
-                </div>
-            </div> 
-        </div>
-    </div>
+					{% endif %}
 
-
-
-
-
+				</div>
+			</div>
+		</div>
+	</div>
 
 {% endblock %}

@@ -95,4 +95,31 @@ class TodoController extends AbstractController
             'datetime' => $job->getDateFinish() == null ? NULL : $job->getDateFinish()->format('Y-m-d\ H:i'),
         ]);
     }
+
+
+    /**
+     * @Route("/todo/api/filter-job/", methods={"GET"})
+     * Фильтрация задач
+     */
+    public function filterJob(Request $request, EntityManagerInterface $entityManager)
+    {
+        $filter = [
+            'user' => $this->getUser(),
+        ];
+
+        if ($request->get('status') != '') {
+            $filter['status'] =  $request->get('status');
+        }
+
+        $jobs = $entityManager->getRepository(Job::class)->findBy($filter);
+
+        $html = '';
+        foreach ($jobs as $job) {
+            $html .= $this->renderView('todo/job.html.twig', ['job' => $job]);
+        }
+
+        return Helper::responseJson([
+            'html' => $html,
+        ]);
+    }
 }
