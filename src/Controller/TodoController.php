@@ -43,12 +43,14 @@ class TodoController extends AbstractController
         //Валидация
         $errorsString = Helper::validate($job, $validator);
 
-        //добавление в базу
-        $entityManager->persist($job);
-        $entityManager->flush();
-
-        //Вывод шаблона
-        $element = $this->renderView('todo/job.html.twig', ['job' => $job]);
+        $element = ''; 
+        if(empty($errorsString)){
+            //добавление в базу
+            $entityManager->persist($job);
+            $entityManager->flush();
+            //Вывод шаблона
+            $element = $this->renderView('todo/job.html.twig', ['job' => $job]);
+        }
 
         return Helper::responseJson([
             'html' => $element,
